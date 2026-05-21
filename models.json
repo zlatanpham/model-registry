@@ -2,6 +2,7 @@
   {
     "providerId": "opencode-go",
     "provider": "OpenCode Go",
+    "envKey": "OPENCODE_GO_API_KEY",
     "models": [
       "glm-5.1",
       "glm-5",
@@ -18,6 +19,7 @@
   {
     "providerId": "deepseek",
     "provider": "DeepSeek",
+    "envKey": "DEEPSEEK_API_KEY",
     "models": [
       "deepseek-v4-flash",
       "deepseek-v4-pro"
@@ -26,6 +28,7 @@
   {
     "providerId": "google",
     "provider": "Google Gemini",
+    "envKey": "GOOGLE_GENERATIVE_AI_API_KEY",
     "models": [
       "gemini-3-flash-preview",
       "gemini-3.1-flash-lite-preview",
@@ -35,6 +38,7 @@
   {
     "providerId": "neuralwatt",
     "provider": "Neuralwatt",
+    "envKey": "NEURALWATT_API_KEY",
     "models": [
       "glm-5.1-fast",
       "glm-5-fast",
