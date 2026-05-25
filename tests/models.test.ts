@@ -1,83 +1,11 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  AuthRequiredError,
+  listModelsFor,
+  loadRegistry,
+} from "../src/providers.js";
 
-type Provider = {
-  providerId: string;
-  provider: string;
-  envKey: string;
-  models: string[];
-};
-
-const here = dirname(fileURLToPath(import.meta.url));
-const registry = JSON.parse(
-  readFileSync(join(here, "..", "models.json"), "utf-8"),
-) as Provider[];
-
-const OPENAI_COMPATIBLE_BASE_URLS: Record<string, string> = {
-  "opencode-go": "https://opencode.ai/zen/go/v1",
-  deepseek: "https://api.deepseek.com/v1",
-  neuralwatt: "https://api.neuralwatt.com/v1",
-};
-
-class AuthRequiredError extends Error {
-  constructor(public status: number) {
-    super(`endpoint requires auth (HTTP ${status})`);
-  }
-}
-
-async function listOpenAICompatibleModels(
-  baseURL: string,
-  apiKey: string | undefined,
-): Promise<string[]> {
-  const headers: Record<string, string> = {};
-  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
-  const res = await fetch(`${baseURL.replace(/\/$/, "")}/models`, { headers });
-  if (res.status === 401 || res.status === 403) {
-    throw new AuthRequiredError(res.status);
-  }
-  if (!res.ok) {
-    throw new Error(
-      `GET ${baseURL}/models failed: ${res.status} ${await res.text()}`,
-    );
-  }
-  const body = (await res.json()) as { data: Array<{ id: string }> };
-  return body.data.map((m) => m.id);
-}
-
-async function listGoogleModels(
-  apiKey: string | undefined,
-): Promise<string[]> {
-  const ids: string[] = [];
-  let pageToken: string | undefined;
-  do {
-    const url = new URL(
-      "https://generativelanguage.googleapis.com/v1beta/models",
-    );
-    if (apiKey) url.searchParams.set("key", apiKey);
-    url.searchParams.set("pageSize", "200");
-    if (pageToken) url.searchParams.set("pageToken", pageToken);
-    const res = await fetch(url);
-    if (res.status === 401 || res.status === 403) {
-      throw new AuthRequiredError(res.status);
-    }
-    if (!res.ok) {
-      throw new Error(
-        `Google models.list failed: ${res.status} ${await res.text()}`,
-      );
-    }
-    const body = (await res.json()) as {
-      models?: Array<{ name: string }>;
-      nextPageToken?: string;
-    };
-    for (const m of body.models ?? []) {
-      ids.push(m.name.replace(/^models\//, ""));
-    }
-    pageToken = body.nextPageToken;
-  } while (pageToken);
-  return ids;
-}
+const registry = loadRegistry();
 
 function editDistance(a: string, b: string): number {
   const m = a.length;
@@ -106,19 +34,6 @@ function closestMatches(target: string, candidates: string[], n = 3): string[] {
     .sort((a, b) => a.d - b.d)
     .slice(0, n)
     .map(({ c }) => c);
-}
-
-async function listModelsFor(provider: Provider, apiKey: string | undefined) {
-  if (provider.providerId === "google") {
-    return listGoogleModels(apiKey);
-  }
-  const baseURL = OPENAI_COMPATIBLE_BASE_URLS[provider.providerId];
-  if (!baseURL) {
-    throw new Error(
-      `No base URL configured for providerId="${provider.providerId}"`,
-    );
-  }
-  return listOpenAICompatibleModels(baseURL, apiKey);
 }
 
 for (const provider of registry) {
