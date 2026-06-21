@@ -6,6 +6,13 @@ export type Provider = {
   providerId: string;
   provider: string;
   envKey: string;
+  /**
+   * OpenAI-compatible base URL for this provider's `/models` and
+   * `/chat/completions` endpoints. Optional — when omitted, falls back to the
+   * built-in default in OPENAI_COMPATIBLE_BASE_URLS (keyed by providerId).
+   * Set this to register a new provider without editing source.
+   */
+  baseURL?: string;
   models: string[];
 };
 
@@ -15,6 +22,16 @@ export const OPENAI_COMPATIBLE_BASE_URLS: Record<string, string> = {
   neuralwatt: "https://api.neuralwatt.com/v1",
   ninerouter: "https://router.askcandle.com/v1",
 };
+
+/**
+ * Resolve the OpenAI-compatible base URL for a provider: the explicit
+ * `baseURL` in models.json takes precedence, then the built-in default.
+ * Returns undefined for providers with no OpenAI-compatible endpoint (e.g.
+ * google, which uses its own API).
+ */
+export function resolveBaseURL(provider: Provider): string | undefined {
+  return provider.baseURL ?? OPENAI_COMPATIBLE_BASE_URLS[provider.providerId];
+}
 
 export class AuthRequiredError extends Error {
   constructor(public status: number) {
@@ -118,10 +135,10 @@ export async function listModelsFor(
   if (provider.providerId === "google") {
     return listGoogleModels(apiKey);
   }
-  const baseURL = OPENAI_COMPATIBLE_BASE_URLS[provider.providerId];
+  const baseURL = resolveBaseURL(provider);
   if (!baseURL) {
     throw new Error(
-      `No base URL configured for providerId="${provider.providerId}"`,
+      `No base URL configured for providerId="${provider.providerId}" — set "baseURL" in models.json`,
     );
   }
   return listOpenAICompatibleModels(baseURL, apiKey);

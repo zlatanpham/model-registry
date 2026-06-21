@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   loadRegistry,
-  OPENAI_COMPATIBLE_BASE_URLS,
   probeOpenAICompatibleModel,
+  resolveBaseURL,
 } from "../src/providers.js";
 
 // Live completion tests make real, billable API calls. They are opt-in:
@@ -14,7 +14,7 @@ const registry = loadRegistry();
 
 describe.skipIf(!LIVE)("live chat completions", () => {
   for (const provider of registry) {
-    const baseURL = OPENAI_COMPATIBLE_BASE_URLS[provider.providerId];
+    const baseURL = resolveBaseURL(provider);
     const apiKey = process.env[provider.envKey];
 
     describe(`${provider.provider} (${provider.providerId})`, () => {
@@ -25,7 +25,7 @@ describe.skipIf(!LIVE)("live chat completions", () => {
           `responds for "${model}"`,
           async () => {
             const content = await probeOpenAICompatibleModel(
-              baseURL,
+              baseURL!,
               apiKey,
               model,
             );

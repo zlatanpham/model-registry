@@ -70,6 +70,7 @@
     "providerId": "ninerouter",
     "provider": "9router",
     "envKey": "NINEROUTER_API_KEY",
+    "baseURL": "https://router.askcandle.com/v1",
     "models": [
       "cx/gpt-5.5",
       "cx/gpt-5.4"
