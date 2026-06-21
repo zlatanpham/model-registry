@@ -60,5 +60,14 @@
       "moonshotai/Kimi-K2.6",
       "kimi-k2.6-fast"
     ]
+  },
+  {
+    "providerId": "ninerouter",
+    "provider": "9router",
+    "envKey": "NINEROUTER_API_KEY",
+    "models": [
+      "cx/gpt-5.5",
+      "cx/gpt-5.4"
+    ]
   }
 ]

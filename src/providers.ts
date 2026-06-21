@@ -13,6 +13,7 @@ export const OPENAI_COMPATIBLE_BASE_URLS: Record<string, string> = {
   "opencode-go": "https://opencode.ai/zen/go/v1",
   deepseek: "https://api.deepseek.com/v1",
   neuralwatt: "https://api.neuralwatt.com/v1",
+  ninerouter: "https://router.askcandle.com/v1",
 };
 
 export class AuthRequiredError extends Error {
@@ -45,6 +46,36 @@ export async function listOpenAICompatibleModels(
   }
   const body = (await res.json()) as { data: Array<{ id: string }> };
   return body.data.map((m) => m.id);
+}
+
+export async function probeOpenAICompatibleModel(
+  baseURL: string,
+  apiKey: string | undefined,
+  model: string,
+): Promise<string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
+  const res = await fetch(`${baseURL.replace(/\/$/, "")}/chat/completions`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: "Reply with exactly: ok" }],
+      max_tokens: 20,
+    }),
+  });
+  if (res.status === 401 || res.status === 403) {
+    throw new AuthRequiredError(res.status);
+  }
+  if (!res.ok) {
+    throw new Error(
+      `POST ${baseURL}/chat/completions failed: ${res.status} ${await res.text()}`,
+    );
+  }
+  const body = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  return body.choices?.[0]?.message?.content ?? "";
 }
 
 export async function listGoogleModels(
