@@ -73,7 +73,8 @@
     "baseURL": "https://router.askcandle.com/v1",
     "models": [
       "cx/gpt-5.5",
-      "cx/gpt-5.4"
+      "cx/gpt-5.4",
+      "cx/gpt-5.4-mini"
     ]
   }
 ]
