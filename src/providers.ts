@@ -78,7 +78,9 @@ export async function probeOpenAICompatibleModel(
     body: JSON.stringify({
       model,
       messages: [{ role: "user", content: "Reply with exactly: ok" }],
-      max_tokens: 20,
+      // Generous budget: reasoning models (e.g. deepseek-v4-*) spend tokens
+      // on thinking before producing the actual answer.
+      max_tokens: 200,
     }),
   });
   if (res.status === 401 || res.status === 403) {
@@ -90,9 +92,14 @@ export async function probeOpenAICompatibleModel(
     );
   }
   const body = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
+    choices?: Array<{
+      message?: { content?: string; reasoning_content?: string };
+    }>;
   };
-  return body.choices?.[0]?.message?.content ?? "";
+  const message = body.choices?.[0]?.message;
+  // Fall back to the reasoning trace when `content` is empty (e.g. the
+  // model hit the token budget while thinking).
+  return message?.content?.trim() || message?.reasoning_content?.trim() || "";
 }
 
 export async function listGoogleModels(
