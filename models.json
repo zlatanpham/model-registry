@@ -23,7 +23,20 @@
       "kimi-k2.7-code",
       "glm-5.2",
       "qwen3.7-max",
-      "qwen3.7-plus"
+      "qwen3.7-plus",
+      "kimi-k3",
+      "longcat-2.0",
+      "glm-5.3-flash",
+      "glm-5.3",
+      "deepseek-v4-flash-vision-exp",
+      "qwen3.8-max",
+      "qwen3.8-flash",
+      "hy4-preview",
+      "hy3",
+      "gpt-5.6-luna",
+      "grok-4.5",
+      "grok-4.6",
+      "muse-spark-1.2-contributor"
     ]
   },
   {
@@ -63,7 +76,25 @@
       "openai/gpt-oss-20b",
       "mistralai/Devstral-Small-2-24B-Instruct-2512",
       "moonshotai/Kimi-K2.6",
-      "kimi-k2.6-fast"
+      "kimi-k2.6-fast",
+      "kimi-k2.7-code",
+      "kimi-k2.7-code-fast",
+      "kimi-k2.7-code-flex",
+      "glm-5.2",
+      "glm-5.2-fast",
+      "glm-5.2-flex",
+      "glm-5.2-short",
+      "glm-5.2-short-fast",
+      "glm-5.2-short-flex",
+      "glm-5.2-short-fast-flex",
+      "glm-5.3",
+      "deepseek-v4-flash",
+      "deepseek-v4-flash-flex",
+      "kimi-k3",
+      "kimi-k3-fast",
+      "kimi-k3-flex",
+      "qwen3.6-35b",
+      "gemma-4-31b"
     ]
   },
   {
